@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>2Q2R Demo</title>
+</head>
+
+<body>
+    <script type="text/javascript" src="jquery.min.js"></script>
+    <script type="text/javascript" src="jquery-qrcode.min.js"></script>
+
+    <script type="text/javascript">
+
+    function getData(email){
+        $.get("/challenge/"+email, function(data){
+            console.log(data);
+            $("#qrcode").empty();
+            $("#qrcode").qrcode({
+              text: "R  "+email+" "+data.challenge
+            });
+        }, "json");
+    }
+
+    $(document).ready( function(){
+      $("#text").
+    	on("blur", function () {
+	    	getData($("#text").val());
+	    }).
+	    on("keydown", function (e) {
+		    if (e.keyCode == 13) {
+			    getData($("#text").val());
+		    }
+	    });
+    });
+
+      </script>
+
+    <h1> 2Q2R Demo </h1>
+    <input id="text" type="text" value="alidobra@gmail.com" style="width:80%" /><br />
+
+    <div id="qrcode"></div>
+
+</body>
+
+</html>

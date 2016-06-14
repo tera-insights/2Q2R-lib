@@ -1,0 +1,30 @@
+{
+  "name": "2q2r",
+  "description": "Nodejs 2Q2R server",
+  "main": "server.js",
+  "authors": [
+    "Sam Claus & Alin Dobra"
+  ],
+  "license": "ISC",
+  "keywords": [
+    "QR",
+    "public",
+    "key"
+  ],
+  "homepage": "https://github.com/alinVD/2Q2R-lib",
+  "moduleType": [
+    "amd"
+  ],
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery": "^3.0.0",
+    "jquery-qrcode": "jquery.qrcode#^0.14.0"
+  }
+}
