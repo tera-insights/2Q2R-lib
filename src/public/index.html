@@ -4,42 +4,42 @@
 <head>
     <meta charset="UTF-8">
     <title>2Q2R Demo</title>
+    <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 
-<body>
+<body style="margin: 200px">
     <script type="text/javascript" src="jquery.min.js"></script>
     <script type="text/javascript" src="jquery-qrcode.min.js"></script>
 
     <script type="text/javascript">
 
-    function getData(email){
-        $.get("/challenge/"+email, function(data){
+    function getRegistrationData(email){
+        $.get("/challenge/" + email, function(data){
             console.log(data);
             $("#qrcode").empty();
             $("#qrcode").qrcode({
-              text: "R  "+email+" "+data.challenge
+              text: "R " + data.challenge + " " + data.infoURL,
+              size: 200,
+              radius: 0.3
             });
         }, "json");
     }
 
     $(document).ready( function(){
-      $("#text").
-    	on("blur", function () {
-	    	getData($("#text").val());
-	    }).
-	    on("keydown", function (e) {
-		    if (e.keyCode == 13) {
-			    getData($("#text").val());
-		    }
-	    });
+       $("#button-register").on("click", function () {
+            getRegistrationData($("#text").val());
+        });
     });
 
       </script>
 
     <h1> 2Q2R Demo </h1>
-    <input id="text" type="text" value="alidobra@gmail.com" style="width:80%" /><br />
-
     <div id="qrcode"></div>
+    <input id="user-email" type="text" value="alidobra@gmail.com"/><br/>
+    <div id="button-group">
+        <button id="button-register">Register</button>
+        <button id="button-authenticate">Authenticate</button>
+    </div>
 
 </body>
 

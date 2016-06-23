@@ -1,9 +1,12 @@
 'use strict';
 
 var crypto = require('crypto');
+var u2f    = require('u2f');
 
 var info = {
-    appID: "dalfkj"
+    appID: crypto.randomBytes(32).toString('base64'),
+    appName: "2Q2R Demo",
+    baseURL: "http://" + findIPv4() + ":8081/"
 };
 
 /** Pending challenges. One for each user */
@@ -22,16 +25,38 @@ exports.info = function (req, res) {
 }
 
 /**
- * Auxiliary function to check that the challenge is correct
+ * Returns the IP address of the server.
  */
-function checkChallenge(userID, challenge) {
-    var ch = challenges[userID];
+function findIPv4() {
 
-    if (!ch || ch != challenge) {
-        console.log("Challenge for " + userID + " failed. " + challenge);
-        return false;
-    } else {
-        return true;
+    var os = require('os');
+    var ni = os.networkInterfaces();
+
+    for (var int in ni) {
+        if (int.startsWith("lo"))
+            continue;
+
+        var networks = ni[int];
+
+        for (var i = 0; i < networks.length; i++) {
+            var network = networks[i];
+
+            if(!network.address.startsWith("127") && network.family == "IPv4") {
+                return network.address;
+            }
+        }
+    }
+
+    console.log("No network found.");
+    return "No network found.";
+
+}
+
+function findUserID(challenge) {
+    for (var key in challenges) {
+        if (challenges.hasOwnProperty(key) && challenges[key].challenge == challenge) {
+            return key;
+        }
     }
 }
 
@@ -42,44 +67,58 @@ exports.challenge = function (req, res) {
     var userID = req.params.userID;
 
     // generate random challenge
-    var challenge = crypto.randomBytes(32).toString('base64');
+    var req = u2f.request(info.appID);
 
     // remember the challenge
-    challenges[userID] = challenge;
+    challenges[userID] = req;
 
     console.log("UserID: ", userID);
+    console.log("Server Address: ", findIPv4());
+
     var reply = {
-        challenge: challenge,
-        email: userID,
-        info: info
-    }
+        challenge: req.challenge,
+        infoURL: "http://" + findIPv4() + ":8081/info"
+    };
 
     res.send(JSON.stringify(reply));
 }
 
 
 /**
- * This is the main registration function
+ * This is the U2F registration function, which receives a registration
+ * response from a U2F device and responds with a status code based on
+ * whether or not the registration was accepted.
  */
 exports.register = function (req, res) {
-    console.log(req.body);
-    var userID = req.body.userID;
-    if (!checkChallenge(userID, req.body.challenge))
-        res.status(401).send({ error: "Challenge invalid for " + userID });
-    else {
-        var registration = {
-            userID: userID,
-            pubKey: req.body.pubKey,
-            pubKeyType: req.body.pubKeyType
-        }
 
-        registrations[userID] = registration;
+    res.status(100).send();
+    // console.log(req.body);
+    // var userID = findUserID(req.body.challenge);
+    // var u2fResponse = {
+    //     clientData: {
+    //         challenge: req.body.challenge
+    //     },
+    //     registrationData: req.body.registrationData
+    // };
+    // var checkRes = u2f.checkRegistration(challenges[userID], u2fResponse);
 
-        var rep = {
-            appID: info.appID
-        }
-        res.send(JSON.stringify(rep));
-    }
+    // if (checkRes.successful) {
+
+    //     delete challenges[userID];
+    //     registrations[userID] = {
+    //         pubKey: checkRes.publicKey,
+    //         certificate: checkRes.certificate
+    //     };
+    //     console.log("New Registration: ", registrations[userID]);
+    //     res.status(200).end(); // OK
+
+    // } else {
+
+    //     console.log("Registration for " + userID + " failed.");
+    //     res.status(400).end(); // BAD REQUEST
+
+    // }
+
 }
 
 
@@ -92,7 +131,7 @@ exports.auth = function (req, res) {
     else {
         // find the registration
         var reg = registrations[userID];
-        if (!reg || reg.userID != userID || !reg.pubKey) {
+        if (!reg || !reg.pubKey) {
             res.status(400).send({ error: "Bad authentication request" });
         } else {
             // TODO: check the digital signature of the auth request 

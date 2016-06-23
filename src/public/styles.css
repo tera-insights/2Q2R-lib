@@ -1,0 +1,60 @@
+h1 {
+	font-family: helvetica;
+	font-weight: lighter;
+	font-size: 3em;
+	text-align: center;
+	display: block;
+	margin: auto;
+}
+
+#qrcode {
+	width: 200px;
+	height: 200px;
+	display: block;
+	margin: auto;
+	margin-top: 20px;
+	margin-bottom: 20px;
+	border-width: 3px;
+	border-color: gray;
+	border-style: dashed;
+	padding: 10px;
+}
+
+#user-email {
+	width: 50%;
+	font-size: 1.5em;
+	font-weight: normal;
+	border-width: 1.5px;
+	border-color: rgb(200, 200, 200);
+	border-style: solid;
+	border-radius: 3px;
+	padding: 0.2em;
+	display: block;
+	margin: auto;
+	color: black;
+	outline: none;
+}
+
+#button-group {
+	width: 50%;
+	display: block;
+	border-width: 1.5px;
+	border-color: transparent;
+	margin: auto;
+}
+
+#button-group button {
+	font-size: 1.5em;
+	width: 48%;
+	background-color: rgb(200, 200, 200);
+	border-width: 1px;
+	border-radius: 3px;
+	border-color: rgb(180, 180, 180);
+	border-style: solid;
+	outline: none;
+}
+
+#button-group button:active {
+	background-color: rgb(180, 180, 180);
+	color: white;
+}
