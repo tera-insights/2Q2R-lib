@@ -13,6 +13,8 @@ var config = {
 // Start the app by listening on <port>
 app.listen(config.port);
 app.use(morgan('dev'));
+app.use(parser.json());
+app.use(parser.urlencoded({ extended: false }));
 
 app.get("/info", _2Q2R.info);
 app.get("/challenge/:userID", _2Q2R.challenge);

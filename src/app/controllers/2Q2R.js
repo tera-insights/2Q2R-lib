@@ -9,10 +9,10 @@ var info = {
     baseURL: "http://" + findIPv4() + ":8081/"
 };
 
-/** Pending challenges. One for each user */
+/** Pending challenges. One for each user. */
 var challenges = {};
 
-/** Registered accounts */
+/** Registered accounts. */
 var registrations = {}
 
 /**
@@ -54,7 +54,7 @@ function findIPv4() {
 
 function findUserID(challenge) {
     for (var key in challenges) {
-        if (challenges.hasOwnProperty(key) && challenges[key].challenge == challenge) {
+        if (challenges[key].challenge == challenge) {
             return key;
         }
     }
@@ -67,20 +67,30 @@ exports.challenge = function (req, res) {
     var userID = req.params.userID;
 
     // generate random challenge
-    var req = u2f.request(info.appID);
+    var u2fReq = u2f.request(info.appID);
 
     // remember the challenge
-    challenges[userID] = req;
+    challenges[userID] = u2fReq;
 
     console.log("UserID: ", userID);
     console.log("Server Address: ", findIPv4());
 
     var reply = {
-        challenge: req.challenge,
+        challenge: u2fReq.challenge,
         infoURL: "http://" + findIPv4() + ":8081/info"
     };
 
     res.send(JSON.stringify(reply));
+}
+
+/**
+ * Because QR codes can only store so much information before becoming
+ * inefficiently complex, the registering user's ID isn't embedded in
+ * each registration QR. Instead, the registering device can send the
+ * relying party its challenge in return for the respective userID.
+ */
+exports.userID = function (req, res) {
+    res.send(findUserID(req.body.challenge));
 }
 
 
@@ -91,33 +101,34 @@ exports.challenge = function (req, res) {
  */
 exports.register = function (req, res) {
 
-    res.status(100).send();
-    // console.log(req.body);
-    // var userID = findUserID(req.body.challenge);
-    // var u2fResponse = {
-    //     clientData: {
-    //         challenge: req.body.challenge
-    //     },
-    //     registrationData: req.body.registrationData
-    // };
-    // var checkRes = u2f.checkRegistration(challenges[userID], u2fResponse);
+    var userID = findUserID(JSON.parse(req.body.clientData).challenge);
+    var registerData = {
+        registrationData: req.body.registrationData,
+        clientData: req.body.clientData
+    }
+    var checkRes = u2f.checkRegistration(challenges[userID], req.body);
 
-    // if (checkRes.successful) {
+    console.log("\nRegistration:");
+    console.log(userID);
+    console.log(challenges);
+    console.log(checkRes);
 
-    //     delete challenges[userID];
-    //     registrations[userID] = {
-    //         pubKey: checkRes.publicKey,
-    //         certificate: checkRes.certificate
-    //     };
-    //     console.log("New Registration: ", registrations[userID]);
-    //     res.status(200).end(); // OK
+    if (checkRes.successful) {
 
-    // } else {
+        delete challenges[userID];
+        registrations[userID] = {
+            pubKey: checkRes.publicKey,
+            certificate: checkRes.certificate
+        };
+        console.log("New Registration: ", userID);
+        res.status(200).send("Registration approved!"); // OK
 
-    //     console.log("Registration for " + userID + " failed.");
-    //     res.status(400).end(); // BAD REQUEST
+    } else {
 
-    // }
+        console.log("Registration for \"" + userID + "\" failed.");
+        res.status(400).send("Registration failed."); // BAD REQUEST
+
+    }
 
 }
 
