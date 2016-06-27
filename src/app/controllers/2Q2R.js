@@ -116,11 +116,18 @@ exports.register = function (req, res) {
     if (checkRes.successful) {
 
         delete challenges[userID];
-        registrations[userID] = {
+        var innerObject = {};
+        innerObject[keyHandle] = {
             pubKey: checkRes.publicKey,
-            certificate: checkRes.certificate
+            deviceName: req.body.deviceName,
+            counter: 0
         };
+        registrations[userID] = innerObject;
+
         console.log("New Registration: ", userID);
+        console.log("Accounts:");
+        console.log(registrations);
+        
         res.status(200).send("Registration approved!"); // OK
 
     } else {
