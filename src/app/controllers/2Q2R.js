@@ -65,37 +65,30 @@ function findUserID(challenge) {
  */
 exports.challenge = function (req, res) {
 
-    var userID = req.params.userID;
-    var keyID = req.params.keyHandle;
+    var userID = req.query.userID;
+    var keyID = req.query.keyHandle;
 
-    if (userID) {
-        var reply;
+    console.log(userID);
+    console.log(keyID);
 
-        if (keyID) { // Provided for authentication.
-            
-        } else { // No key handle, so simply looking to register.
-            // generate random challenge
-            var u2fReq = u2f.request(info.appID);
-
-            // remember the challenge
-            challenges[userID] = u2fReq;
-
-            console.log("UserID: ", userID);
-            console.log("Server Address: ", findIPv4());
-
-            reply = {
-                challenge: u2fReq.challenge,
-                infoURL: "http://" + findIPv4() + ":8081/info",
-                appID: info.appID
-            };
-        }
-
-        res.send(JSON.stringify(reply));
-    } else {
+    if (!userID) {
         res.send(JSON.stringify({
-            error: "No userID provided."
+            error: "UserID required."
         }));
+        return;
     }
+
+    var u2fReq = u2f.request(info.appID, keyID);
+    challenges[userID] = u2fReq;
+
+    var reply = {
+        infoURL: "http://" + findIPv4() + ":8081/info",
+        challenge: u2fReq.challenge,
+        appID: info.appID,
+        keyID: keyID
+    };
+
+    res.send(JSON.stringify(reply));
 
 }
 
@@ -105,22 +98,22 @@ exports.challenge = function (req, res) {
  * no keys registered for that account. The map will be a JSON.
  */
 exports.keys = function (req, res) {
+    res.send();
+    // var userID = req.params.userID;
+    // var reply = {};
+    // var userRegistration = registrations[userID];
 
-    var userID = req.params.userID;
-    var reply = {};
-    var userRegistration = registrations[userID];
+    // if (userRegistration) { // Does the account exist?
+    //     for (var keyHandle in userRegistration) {
+    //         reply[keyHandle] = userRegistration[keyHandle].deviceName
+    //     }
 
-    if (userRegistration) { // Does the account exist?
-        for (var keyHandle in userRegistration) {
-            reply[keyHandle] = userRegistration[keyHandle].deviceName
-        }
-
-        res.send(JSON.stringify(reply))
-    } else {
-        res.send(JSON.stringify({
-            error: "The user has not been registered yet."
-        }));
-    }
+    //     res.send(JSON.stringify(reply))
+    // } else {
+    //     res.send(JSON.stringify({
+    //         error: "The user has not been registered yet."
+    //     }));
+    // }
 
 }
 
@@ -221,4 +214,6 @@ exports.auth = function (req, res) {
             userID: 
         }
     }
-}
+
+
+*/
