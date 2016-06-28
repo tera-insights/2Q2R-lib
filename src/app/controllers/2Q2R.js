@@ -9,10 +9,10 @@ var info = {
     baseURL: "http://" + findIPv4() + ":8081/"
 };
 
-/** Pending challenges. One for each user */
+/** Pending challenges. One for each user. */
 var challenges = {};
 
-/** Registered accounts */
+/** Registered accounts. */
 var registrations = {}
 
 /**
@@ -53,34 +53,78 @@ function findIPv4() {
 }
 
 function findUserID(challenge) {
-    for (var key in challenges) {
-        if (challenges.hasOwnProperty(key) && challenges[key].challenge == challenge) {
-            return key;
+    for (var userID in challenges) {
+        if (challenges[userID].challenge == challenge) {
+            return userID;
         }
     }
 }
 
 /**
- * This method produces a challenge that later is used to complete the login
+ * This method produces challenges for registration and authentication tasks.
  */
 exports.challenge = function (req, res) {
-    var userID = req.params.userID;
 
-    // generate random challenge
-    var req = u2f.request(info.appID);
+    var userID = req.query.userID;
+    var keyID = req.query.keyHandle;
 
-    // remember the challenge
-    challenges[userID] = req;
+    console.log(userID);
+    console.log(keyID);
 
-    console.log("UserID: ", userID);
-    console.log("Server Address: ", findIPv4());
+    if (!userID) {
+        res.send(JSON.stringify({
+            error: "UserID required."
+        }));
+        return;
+    }
+
+    var u2fReq = u2f.request(info.appID, keyID);
+    challenges[userID] = u2fReq;
 
     var reply = {
-        challenge: req.challenge,
-        infoURL: "http://" + findIPv4() + ":8081/info"
+        infoURL: "http://" + findIPv4() + ":8081/info",
+        challenge: u2fReq.challenge,
+        appID: info.appID,
+        keyID: keyID
     };
 
     res.send(JSON.stringify(reply));
+
+}
+
+/**
+ * Takes a userID through the URL and sends back a map of key handles
+ * and their names registered for that user, or an error if there are
+ * no keys registered for that account. The map will be a JSON.
+ */
+exports.keys = function (req, res) {
+    res.send();
+    // var userID = req.params.userID;
+    // var reply = {};
+    // var userRegistration = registrations[userID];
+
+    // if (userRegistration) { // Does the account exist?
+    //     for (var keyHandle in userRegistration) {
+    //         reply[keyHandle] = userRegistration[keyHandle].deviceName
+    //     }
+
+    //     res.send(JSON.stringify(reply))
+    // } else {
+    //     res.send(JSON.stringify({
+    //         error: "The user has not been registered yet."
+    //     }));
+    // }
+
+}
+
+/**
+ * Because QR codes can only store so much information before becoming
+ * inefficiently complex, the registering user's ID isn't embedded in
+ * each registration QR. Instead, the registering device can send the
+ * relying party its challenge in return for the respective userID.
+ */
+exports.userID = function (req, res) {
+    res.send(findUserID(req.body.challenge));
 }
 
 
@@ -91,54 +135,85 @@ exports.challenge = function (req, res) {
  */
 exports.register = function (req, res) {
 
-    res.status(100).send();
-    // console.log(req.body);
-    // var userID = findUserID(req.body.challenge);
-    // var u2fResponse = {
-    //     clientData: {
-    //         challenge: req.body.challenge
-    //     },
-    //     registrationData: req.body.registrationData
-    // };
-    // var checkRes = u2f.checkRegistration(challenges[userID], u2fResponse);
+    var userID = findUserID(JSON.parse(req.body.clientData).challenge);
+    var registerData = {
+        registrationData: req.body.registrationData,
+        clientData: req.body.clientData
+    }
+    var checkRes = u2f.checkRegistration(challenges[userID], req.body);
 
-    // if (checkRes.successful) {
+    console.log("\nRegistration:");
+    console.log(userID);
+    console.log(challenges);
+    console.log(checkRes);
 
-    //     delete challenges[userID];
-    //     registrations[userID] = {
-    //         pubKey: checkRes.publicKey,
-    //         certificate: checkRes.certificate
-    //     };
-    //     console.log("New Registration: ", registrations[userID]);
-    //     res.status(200).end(); // OK
+    if (checkRes.successful) {
 
-    // } else {
+        delete challenges[userID];
+        var innerObject = {};
+        innerObject[keyHandle] = {
+            pubKey: checkRes.publicKey,
+            deviceName: req.body.deviceName,
+            counter: 0
+        };
+        registrations[userID] = innerObject;
 
-    //     console.log("Registration for " + userID + " failed.");
-    //     res.status(400).end(); // BAD REQUEST
+        console.log("New Registration: ", userID);
+        console.log("Accounts:");
+        console.log(registrations);
 
-    // }
+        res.status(200).send("Registration approved!"); // OK
+
+    } else {
+
+        console.log("Registration for \"" + userID + "\" failed.");
+        res.status(400).send("Registration failed."); // BAD REQUEST
+
+    }
 
 }
 
 
 exports.auth = function (req, res) {
-    console.log(req.body);
-    var userID = req.body.userID;
 
-    if (!checkChallenge(userID, req.body.challenge))
-        res.status(401).send({ error: "Challenge invalid for " + userID });
-    else {
-        // find the registration
-        var reg = registrations[userID];
-        if (!reg || !reg.pubKey) {
-            res.status(400).send({ error: "Bad authentication request" });
-        } else {
-            // TODO: check the digital signature of the auth request 
-            var rep = {
-                appID: info.appID
-            }
-            res.send(JSON.stringify(rep));
+
+
+} /*
+
+{
+    appInfo: {
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        appID: infoURL
+        
+    },
+
+    keyInfo: {
+        keyID: {
+            appID: ,
+            counter: ,
+            userID: 
+        }
+        keyID: {
+            appID: ,
+            counter: ,
+            userID: 
+        }
+        keyID: {
+            appID: ,
+            counter: ,
+            userID: 
         }
     }
-} 
+
+
+*/

@@ -1,0 +1,34 @@
+B: Browser, P: Phone, S: Server;
+
+
+B abox B: "'userID' input";
+
+B => S: "GET: /keys/userID" ;
+S >> B: "{ keys of userID }";
+
+B abox B: "Key selection";
+
+B => S: "GET: /challenge?userID&keyHandle";
+S >> B: "{ challenge and keyHandle? }";
+
+B box B: "QR Generation";
+
+B -> P: "QR data";
+
+B => S: "POST: /auth { key, challenge }";
+
+P box P: "QR parsing";
+
+P => S: "GET: /info";
+S >> P: "{ server info }";
+
+P box P: "U2F processing";
+
+P => S: "POST: /register or /auth";
+
+S box S: "U2F registration,\nauthorization,\nor failure";
+
+S >> P: "{ success or error }";
+S >> B: "{ sessionID } or { error }";
+
+B abox B: "User session\nor\nerror message";
