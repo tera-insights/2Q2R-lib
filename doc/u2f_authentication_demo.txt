@@ -1,0 +1,17 @@
+Login Data
+username: sam
+password: password
+
+Challenge Data
+version: U2F_V2
+challenge: yMNPrww0DZHrB2eHFmez9kxL_S7h_gXPPqKrUFfp39Q
+keyHandle: di90eVTNq3iJK_IKcx6vJrEVotindc0i_0fze8Gr1eqQixWnDXPUPppx2BGOq3N5VmwCukbjE1uHQ_n_buJlSw
+
+
+Response Data
+clientData: {"typ":"navigator.id.getAssertion","challenge":"yMNPrww0DZHrB2eHFmez9kxL_S7h_gXPPqKrUFfp39Q","origin":"https://demo.yubico.com","cid_pubkey":"unused"}
+signatureData: AQAAAAIwRgIhALfWbsGQXUYofZVscHAtaLWwc5Qv52pn2yjZN1vfb0s2AiEA3-hnIVmM9POsQrRZO8tAwontAkSGstiq1pWIxbNCuFI
+
+Authentication Parameters
+touch: true
+counter: 2

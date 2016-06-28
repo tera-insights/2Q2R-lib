@@ -1,0 +1,57 @@
+Login Data
+username: sam
+password: password
+
+Registration Data
+origin: https://demo.yubico.com
+version: U2F_V2
+challenge: vRM-czxE5SKZlkHHgIlAGMu5vnSkQ5QE54gmJ7AQrFo
+appId: https://demo.yubico.com
+
+Response Data
+clientData: {"typ":"navigator.id.finishEnrollment","challenge":"vRM-czxE5SKZlkHHgIlAGMu5vnSkQ5QE54gmJ7AQrFo","origin":"https://demo.yubico.com","cid_pubkey":"unused"}
+registrationData: 0504e358162479ebe5083d9f19bc29b9c23ba80dc8e3e90d9a697f84d9476fb4ee2fec22285a8a206151931e70592fba5bdb7986ef3d5dc61c63327f171f38ce68a940762f747954cdab78892bf20a731eaf26b115a2d8a775cd22ff47f37bc1abd5ea908b15a70d73d43e9a71d8118eab7379566c02ba46e3135b8743f9ff6ee2654b308201aa30820151a003020102020900fe56fe7ae1ff180e300a06082a8648ce3d04030230323130302e06035504030c27506c75672d7570204649444f20496e7465726e616c204174746573746174696f6e204341202331301e170d3134313030333038303634385a170d3334313030333038303634385a3040313e303c06035504030c35506c75672d7570204649444f2050726f64756374696f6e204174746573746174696f6e2023666535366665376165316666313830653059301306072a8648ce3d020106082a8648ce3d0301070342000475ea0660e290637484370000afaa32253e827bd8487493a686a5684c65cace098be8bf4b87253def96b940230106fc46061f7d6546c16f14b25abf3019d8f427a3423040301d0603551d0e04160414762b446ff294ed322ae429094fa984d8853e3580301f0603551d23041830168014cfa744f2a16250f039e99285e3da50e77db03aa8300a06082a8648ce3d040302034700304402206b5fea7fddce65843b25d6a6fc8a4db73b80b1e6442eab0677a93e3db9351f220220595b82327921c28fad2062b92aea07c437a54d46a62c8be6eefb695b8ab144163045022100c8ff3d378609251f3319cbd9b8b66da18a132fb1e93b018c68097193083cf51302205327f9ac2c513d80ffc11ae4f2bb27f93f090585a99e8e7c48a897766a5ba7af
+
+Attestation Certificate
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 18327115537361868814 (0xfe56fe7ae1ff180e)
+    Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN=Plug-up FIDO Internal Attestation CA #1
+        Validity
+            Not Before: Oct  3 08:06:48 2014 GMT
+            Not After : Oct  3 08:06:48 2034 GMT
+        Subject: CN=Plug-up FIDO Production Attestation #fe56fe7ae1ff180e
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub: 
+                    04:75:ea:06:60:e2:90:63:74:84:37:00:00:af:aa:
+                    32:25:3e:82:7b:d8:48:74:93:a6:86:a5:68:4c:65:
+                    ca:ce:09:8b:e8:bf:4b:87:25:3d:ef:96:b9:40:23:
+                    01:06:fc:46:06:1f:7d:65:46:c1:6f:14:b2:5a:bf:
+                    30:19:d8:f4:27
+                ASN1 OID: prime256v1
+        X509v3 extensions:
+            X509v3 Subject Key Identifier: 
+                76:2B:44:6F:F2:94:ED:32:2A:E4:29:09:4F:A9:84:D8:85:3E:35:80
+            X509v3 Authority Key Identifier: 
+                keyid:CF:A7:44:F2:A1:62:50:F0:39:E9:92:85:E3:DA:50:E7:7D:B0:3A:A8
+
+    Signature Algorithm: ecdsa-with-SHA256
+         30:44:02:20:6b:5f:ea:7f:dd:ce:65:84:3b:25:d6:a6:fc:8a:
+         4d:b7:3b:80:b1:e6:44:2e:ab:06:77:a9:3e:3d:b9:35:1f:22:
+         02:20:59:5b:82:32:79:21:c2:8f:ad:20:62:b9:2a:ea:07:c4:
+         37:a5:4d:46:a6:2c:8b:e6:ee:fb:69:5b:8a:b1:44:16
+-----BEGIN CERTIFICATE-----
+MIIBqjCCAVGgAwIBAgIJAP5W/nrh/xgOMAoGCCqGSM49BAMCMDIxMDAuBgNVBAMM
+J1BsdWctdXAgRklETyBJbnRlcm5hbCBBdHRlc3RhdGlvbiBDQSAjMTAeFw0xNDEw
+MDMwODA2NDhaFw0zNDEwMDMwODA2NDhaMEAxPjA8BgNVBAMMNVBsdWctdXAgRklE
+TyBQcm9kdWN0aW9uIEF0dGVzdGF0aW9uICNmZTU2ZmU3YWUxZmYxODBlMFkwEwYH
+KoZIzj0CAQYIKoZIzj0DAQcDQgAEdeoGYOKQY3SENwAAr6oyJT6Ce9hIdJOmhqVo
+TGXKzgmL6L9LhyU975a5QCMBBvxGBh99ZUbBbxSyWr8wGdj0J6NCMEAwHQYDVR0O
+BBYEFHYrRG/ylO0yKuQpCU+phNiFPjWAMB8GA1UdIwQYMBaAFM+nRPKhYlDwOemS
+hePaUOd9sDqoMAoGCCqGSM49BAMCA0cAMEQCIGtf6n/dzmWEOyXWpvyKTbc7gLHm
+RC6rBnepPj25NR8iAiBZW4IyeSHCj60gYrkq6gfEN6VNRqYsi+bu+2lbirFEFg==
+-----END CERTIFICATE-----

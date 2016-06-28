@@ -10,7 +10,13 @@
 <body style="margin: 200px">
     <script type="text/javascript" src="lib/jquery/dist/jquery.min.js"></script>
     <script type="text/javascript" src="lib/jquery-qrcode/dist/jquery-qrcode.min.js"></script>
+    <script src="vex.combined.min.js"></script>
+    <link rel="stylesheet" href="vex.css" />
+    <link rel="stylesheet" href="vex-theme-os.css" />
+
     <script type="text/javascript">
+
+    vex.defaultOptions.className = 'vex-theme-os';
 
     function getRegistrationData (email){
         $.get("/challenge?userID=" + email, function (data) {
@@ -29,7 +35,19 @@
     }
 
     function displayKeys (keys) {
+            var form = $("#key-list");
 
+            for (var keyHandle in keys) {
+                input += "<input name=\"key\" type=\"radio\">" + keys[keyHandle] + "</input>";
+            }
+
+            vex.dialog.open({
+                message: "Please select a key to authenticate with:",
+                input: "<input name=\"key\" type=\"radio\">iPhone</input>",
+                callback: function (data) {
+                    alert(data.toString());
+                }
+            });
     }
 
     function getKeys (email) {
@@ -60,6 +78,7 @@
         <button id="button-register">Register</button>
         <button id="button-authenticate" data-toggle="modal" data-target="#key-selection-modal">Authenticate</button>
     </div>
+    <form id="key-list"/>
 
 </body>
 
