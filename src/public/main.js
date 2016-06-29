@@ -54,7 +54,7 @@ $(document).ready(function() {
         getRegistrationData($("#user-email").val());
     });
     $("#button-authenticate").on("click", function() {
-        getKeys($("#user-email").val());
+        displayKeys();
     });
 
     $("#modal-close").click(function(){
