@@ -25,6 +25,8 @@
   ],
   "dependencies": {
     "jquery": "^3.0.0",
-    "jquery-qrcode": "jquery.qrcode#^0.14.0"
+    "jquery-qrcode": "jquery.qrcode#^0.14.0",
+    "semantic": "semantic-ui#^2.2.1",
+    "vex": "^2.3.4"
   }
 }
