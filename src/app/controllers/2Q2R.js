@@ -98,7 +98,7 @@ exports.challenge = function (req, res) {
  * no keys registered for that account. The map will be a JSON.
  */
 exports.keys = function (req, res) {
-    res.send();
+    
     // var userID = req.params.userID;
     // var reply = {};
     // var userRegistration = registrations[userID];
@@ -135,11 +135,7 @@ exports.userID = function (req, res) {
  */
 exports.register = function (req, res) {
 
-    var userID = findUserID(JSON.parse(req.body.clientData).challenge);
-    var registerData = {
-        registrationData: req.body.registrationData,
-        clientData: req.body.clientData
-    }
+    var userID = findUserID(req.body.clientData.challenge);
     var checkRes = u2f.checkRegistration(challenges[userID], req.body);
 
     console.log("\nRegistration:");
