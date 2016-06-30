@@ -56,6 +56,7 @@ $(document).ready(function() {
         getKeys($("#user-email").val());
     });
 
+    // Modal Buttons
     $("#modal-close").click(function(){
         $('.ui.modal').modal('hide');
     });
@@ -63,4 +64,7 @@ $(document).ready(function() {
     $("#modal-approve").click(function(){
         $('.ui.modal').modal('hide');
     });
+
+    // Tabs
+    $('.menu .item').tab();
 });

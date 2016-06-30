@@ -17,7 +17,6 @@
     <script src="lib/vex/js/vex.combined.min.js"></script>
     <script src="main.js"></script>
 </head>
-
 <div class="ui modal">
     <i class="close icon"></i>
     <div class="header">
@@ -38,19 +37,60 @@
 <body class="demo-page">
     <div class="demo">
         <div class="demo-strip">
+            <img src="2q2r-logo.svg" class="demo-logo">
             <div class="demo-header"> 2Q2R Demo </div>
         </div>
-        <div class="demo-qr" id="qrcode"></div>
-        <div class="ui form demo-field">
-            <div class="field">
-                <div class="ui left icon input">
-                    <input class="demo-email" id="user-email" type="text" value="alidobra@gmail.com" />
-                    <i class="mail icon"></i>
+        
+        <div class="text-section">This is a demo to test your U2F device and 2Q2R app. Put more text here. Maybe.</div>
+        <!--<div class="demo-qr" id="qrcode"></div>-->
+        <div class="ui top attached tabular menu">
+            <a class="item active" data-tab="first">Register</a>
+            <a class="item" data-tab="second">Log in</a>
+        </div>
+        <div class="ui bottom attached tab segment grid" data-tab="first">
+            <div class="row">
+                <div class="ui form demo-field four wide column">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <input class="demo-email" id="user-email" type="text" value="alidobra@gmail.com" />
+                            <i class="mail icon"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <input class="demo-email" id="user-email" type="text" value="alidobra@gmail.com" />
+                            <i class="privacy icon"></i>
+                        </div>
+                    </div>
+                    <div class="field demo-buttons">
+                        <button class="positive ui button" id="button-register">Register</button>
+                        <!--<button class="ui primary button" id="button-authenticate" data-toggle="modal" data-target="#key-selection-modal">Authenticate</button>-->
+                    </div>
                 </div>
+                <div class="ui segment demo-segment eight wide column">aaaaaa aa aa</div>
             </div>
-            <div class="field demo-buttons">
-                <button class="positive ui button" id="button-register">Register</button>
-                <button class="ui primary button" id="button-authenticate" data-toggle="modal" data-target="#key-selection-modal">Authenticate</button>
+        </div>
+        <div class="ui bottom attached tab segment grid" data-tab="second">
+            <div class="row">
+                <div class="ui form demo-field four wide column">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <input class="demo-email" id="user-email" type="text" value="alidobra@gmail.com" />
+                            <i class="mail icon"></i>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <input class="demo-email" id="user-email" type="text" value="alidobra@gmail.com" />
+                            <i class="privacy icon"></i>
+                        </div>
+                    </div>
+                    <div class="field demo-buttons">
+                        <button class="ui primary button" id="button-login">Log in</button>
+                        <!--<button class="ui primary button" id="button-authenticate" data-toggle="modal" data-target="#key-selection-modal">Authenticate</button>-->
+                    </div>
+                </div>
+                <div class="ui segment demo-segment eight wide column">aaaaaa aa aa</div>
             </div>
         </div>
         <form id="key-list"></form>
