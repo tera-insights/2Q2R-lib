@@ -1,4 +1,3 @@
-vex.defaultOptions.className = 'vex-theme-os';
 
 function getRegistrationData(email) {
     $.get("/challenge?userID=" + email, function(data) {
@@ -17,25 +16,11 @@ function getRegistrationData(email) {
 }
 
 function displayKeys(keys) {
-    var form = $("#key-list");
-
-    for (var keyHandle in keys) {
-        input += "<input name=\"key\" type=\"radio\">" + keys[keyHandle] + "</input>";
-    }
-
     $('.ui.modal').modal({
-        onApprove: function() {
+        onApprove: function(data) {
             alert(data.toString());
         }
     }).modal('show');
-
-    /*vex.dialog.open({
-        message: "Please select a key to authenticate with:",
-        input: "<input name=\"key\" type=\"radio\">iPhone</input>",
-        callback: function(data) {
-            alert(data.toString());
-        }
-    });*/
 }
 
 function getKeys(email) {
@@ -48,12 +33,28 @@ function getKeys(email) {
     }, "json");
 }
 
+function getAuthenticationData (email, keyHandle) {
+    $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(res) {
+        console.log(res);
+        if (res.error) {
+            alert(res.error);
+        } else {
+            $("#qrcode").empty();
+            $("#qrcode").qrcode({
+                text: "A " + res.appID + " " + res.challenge + " " + res.keyID,
+                size: $("#qrcode").width,
+                radius: 0.3
+            });
+        }
+    }, "json");
+}
+
 $(document).ready(function() {
     $("#button-register").on("click", function() {
         getRegistrationData($("#user-email").val());
     });
     $("#button-authenticate").on("click", function() {
-        getKeys($("#user-email").val());
+        displayKeys();
     });
 
     // Modal Buttons
