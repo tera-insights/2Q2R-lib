@@ -92,6 +92,14 @@ exports.challenge = function (req, res) {
 
 }
 
+exports.login = function (req, res) {
+
+    var userID = req.query.userID;
+
+    challenges[userID].onCompletion = res;
+
+}
+
 /**
  * Takes a userID through the URL and sends back a map of key handles
  * and their names registered for that user, or an error if there are
@@ -99,21 +107,20 @@ exports.challenge = function (req, res) {
  */
 exports.keys = function (req, res) {
     
-    // var userID = req.params.userID;
-    // var reply = {};
-    // var userRegistration = registrations[userID];
+    var userID = req.query.userID;
+    var reply = {};
+    var userRegistration = registrations[userID];
 
-    // if (userRegistration) { // Does the account exist?
-    //     for (var keyHandle in userRegistration) {
-    //         reply[keyHandle] = userRegistration[keyHandle].deviceName
-    //     }
-
-    //     res.send(JSON.stringify(reply))
-    // } else {
-    //     res.send(JSON.stringify({
-    //         error: "The user has not been registered yet."
-    //     }));
-    // }
+    if (userRegistration) { // Does the account exist?
+        for (var keyHandle in userRegistration) {
+            reply[keyHandle] = userRegistration[keyHandle].deviceName;
+        }
+        res.send(JSON.stringify(reply))
+    } else {
+        res.send(JSON.stringify({
+            error: "The user has not been registered yet."
+        }));
+    }
 
 }
 
@@ -122,6 +129,8 @@ exports.keys = function (req, res) {
  * inefficiently complex, the registering user's ID isn't embedded in
  * each registration QR. Instead, the registering device can send the
  * relying party its challenge in return for the respective userID.
+ * This allows device to make sure the user doesn't wastefully register
+ * the same device multiple times on the same account.
  */
 exports.userID = function (req, res) {
     res.send(findUserID(req.body.challenge));
@@ -135,20 +144,26 @@ exports.userID = function (req, res) {
  */
 exports.register = function (req, res) {
 
-    console.log()
+    console.log(req.body);
     var userID = findUserID(req.body.clientData.challenge);
+    var loginRes = challenges[userID].onCompletion;
     var checkRes = u2f.checkRegistration(challenges[userID], req.body);
 
     if (checkRes.successful) {
 
+        loginRes.status(200).send({ successful: true });
         delete challenges[userID];
-        var innerObject = {};
+
+        var innerObject;
+        if (!(innerObject = registrations[userID]))
+            innerObject = {};
+
         innerObject[checkRes.keyHandle] = {
             pubKey: checkRes.publicKey,
             deviceName: req.body.deviceName,
             counter: 0
         };
-        registrations[userID] = innerObject;
+        registrations[userID] = innerObject; // overwrites--should instad check for existing userID
 
         console.log("New Registration: ", userID);
         console.log("On Device: ", req.body.deviceName);
@@ -158,6 +173,8 @@ exports.register = function (req, res) {
         res.status(200).send("Registration approved!"); // OK
 
     } else {
+
+        loginRes.status(400).send();
 
         console.log("Registration for \"" + userID + "\" failed.");
         res.status(400).send("Registration failed."); // BAD REQUEST
@@ -169,7 +186,25 @@ exports.register = function (req, res) {
 
 exports.auth = function (req, res) {
 
+    var userID = findUserID(req.body.clientData.challenge);
+    var u2fRes = {
+        clientData: JSON.stringify(req.body.clientData),
+        signatureData: req.body.signatureData
+    };
+    var pubKey = registrations[userID][challenges[userID].keyHandle].pubKey;
+    var checkSig = u2f.checkSignature(challenges[userID], u2fRes, pubKey);
 
+    if (checkSig.successful) {
+
+        // open user session
+        res.status(200).send("Authentication approved!");
+
+    } else {
+
+        console.log("Authentication for \"" + userID + "\" failed.");
+        res.status(400).send("Authentication failed.");
+
+    }
 
 } /*
 
@@ -189,7 +224,6 @@ exports.auth = function (req, res) {
         appID: infoURL
         
     },
-
     keyInfo: {
         keyID: {
             appID: ,
@@ -207,6 +241,6 @@ exports.auth = function (req, res) {
             userID: 
         }
     }
-
+}
 
 */

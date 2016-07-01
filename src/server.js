@@ -17,8 +17,9 @@ app.use(parser.json());
 app.use(parser.urlencoded({ extended: false }));
 
 app.get("/info", _2Q2R.info);
+app.get("/login", _2Q2R.login);
 app.get("/challenge", _2Q2R.challenge);
-app.get("/keys/:userID", _2Q2R.keys);
+app.get("/keys", _2Q2R.keys);
 app.post("/register", _2Q2R.register);
 app.post("/auth", _2Q2R.auth);
 
