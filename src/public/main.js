@@ -59,10 +59,10 @@ function getKeys(email) {
 
 function getAuthenticationData (email, keyHandle) {
     $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(res) {
-        console.log(res);
         if (res.error) {
             alert(res.error);
         } else {
+            console.log(res);
             $("#qrcode").empty();
             $("#qrcode").qrcode({
                 text: "A " + res.appID + " " + res.challenge + " " + res.keyID,
@@ -73,9 +73,9 @@ function getAuthenticationData (email, keyHandle) {
             $.get("/login?userID=" + email, function (res) {
                 if (res.successful) {
                     $("#qrcode").empty();
-                    $("#qrcode").append("<img src=\"check.png\" alt=\"Registration\n" +
+                    $("#qrcode").append("<img src=\"authenticated.png\" alt=\"Authentication\n" +
                         "Successful!\" id=\"successImage\" style=\"width: 180px; height: 180px;\">");
-                    
+
                 }
             }, "json");
         }
