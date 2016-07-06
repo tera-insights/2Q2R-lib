@@ -196,10 +196,14 @@ exports.auth = function (req, res) {
 
     if (checkSig.successful) {
 
+        challenges[userID].onCompletion.status(200).send({ successful: true });
+
         // open user session
         res.status(200).send("Authentication approved!");
 
     } else {
+
+        challenges[userID].onCompletion.status(400).send();
 
         console.log("Authentication for \"" + userID + "\" failed.");
         res.status(400).send("Authentication failed.");

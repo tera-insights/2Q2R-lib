@@ -7,8 +7,8 @@ function getRegistrationData(email) {
         } else {
             $("#qrcode").empty();
             $("#qrcode").qrcode({
-                text: "R " + data.challenge + " " + data.infoURL,
-                size: $("#qrcode").width(),
+                text: "R " + data.challenge + " " + data.infoURL + " " + email,
+                size: 174,
                 radius: 0.3
             });
 
@@ -24,9 +24,6 @@ function getRegistrationData(email) {
 }
 
 function displayKeys(keys) {
-    console.log("Keys to display:");
-    console.log(keys);
-
     var keySelection = $("#keySelection");
     keySelection.empty();
     for (var keyHandle in keys) {
@@ -58,6 +55,7 @@ function getKeys(email) {
 }
 
 function getAuthenticationData (email, keyHandle) {
+    console.log("Getting challenge for " + email + " with key handle: " + keyHandle + ".");
     $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(res) {
         if (res.error) {
             alert(res.error);
@@ -66,7 +64,7 @@ function getAuthenticationData (email, keyHandle) {
             $("#qrcode").empty();
             $("#qrcode").qrcode({
                 text: "A " + res.appID + " " + res.challenge + " " + res.keyID,
-                size: $("#qrcode").width,
+                size: 174,
                 radius: 0.3
             });
 
