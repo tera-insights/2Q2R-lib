@@ -1,7 +1,7 @@
 {
   "name": "2q2r",
   "version": "0.0.1",
-  "description": "Nodejs 2Q2R server",
+  "description": "Node.js 2Q2R server",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,6 +19,7 @@
     "express": "^4.13.4",
     "morgan": "^1.7.0",
     "passport-challenge": "^0.1.1",
-    "u2f": "^0.1.2"
+    "u2f": "^0.1.2",
+    "unirest": "^0.5.0"
   }
 }

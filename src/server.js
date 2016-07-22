@@ -20,10 +20,11 @@ app.get("/info", _2Q2R.info);
 app.get("/login", _2Q2R.login);
 app.get("/challenge", _2Q2R.challenge);
 app.get("/keys", _2Q2R.keys);
+app.post("/notify", _2Q2R.notify);
 app.post("/register", _2Q2R.register);
 app.post("/auth", _2Q2R.auth);
 
-app.use(express.static("public/"))
+app.use(express.static("public/"));
 
 // Logging initialization
 console.log('2Q2R server started on  ' + config.port);

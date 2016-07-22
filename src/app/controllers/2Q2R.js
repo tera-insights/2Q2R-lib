@@ -1,12 +1,14 @@
 'use strict';
 
-var crypto = require('crypto');
-var u2f    = require('u2f');
+var crypto  = require('crypto');
+var u2f     = require('u2f');
+var unirest = require('unirest');
+var config  = require('../../../config.json');
 
 var info = {
-    appID: crypto.randomBytes(32).toString('base64'),
     appName: "2Q2R Demo",
-    baseURL: "http://" + findIPv4() + ":8081/"
+    baseURL: "http://" + findIPv4() + ":8081/",
+    appID: config.appID
 };
 
 /** Pending challenges. One for each user. */
@@ -92,6 +94,34 @@ exports.challenge = function (req, res) {
 
 }
 
+exports.notify = function (req, res) {
+
+    var userID = req.query.userID;
+    var keyID  = req.query.keyHandle;
+
+    var fcmToken = registrations[userID][keyID].fcmToken;
+    var data     = req.body;
+
+    console.log(config.fbServerKey);
+
+    unirest.post("https://fcm.googleapis.com/fcm/send")
+        .headers({
+            "Authorization": "key=" + config.fbServerKey,
+            "Content-Type": "application/json"
+        })
+        .send({
+            to: fcmToken,
+            data: {
+                authData: "A " + data.appID + " " + data.challenge + " " + data.keyID
+            }
+        })
+        .end(function (response) {
+            console.log(response.statusCode);
+            res.status(response.statusCode).send();
+        });
+
+}
+
 exports.login = function (req, res) {
 
     var userID = req.query.userID;
@@ -146,8 +176,12 @@ exports.register = function (req, res) {
 
     console.log(req.body);
     var userID = findUserID(req.body.clientData.challenge);
+    var registerData = {
+        clientData: JSON.stringify(req.body.clientData).toString(),
+        registrationData: req.body.registrationData
+    };
     var loginRes = challenges[userID].onCompletion;
-    var checkRes = u2f.checkRegistration(challenges[userID], req.body);
+    var checkRes = u2f.checkRegistration(challenges[userID], registerData);
 
     if (checkRes.successful) {
 
@@ -161,9 +195,15 @@ exports.register = function (req, res) {
         innerObject[checkRes.keyHandle] = {
             pubKey: checkRes.publicKey,
             deviceName: req.body.deviceName,
-            counter: 0
+            counter: 0,
+            fcmToken: req.body.fcmToken
         };
-        registrations[userID] = innerObject; // overwrites--should instad check for existing userID
+
+        if (registrations[userID]) {
+            registrations[userID][checkRes.keyHandle] = innerObject[checkRes.keyHandle];
+        } else {
+            registrations[userID] = innerObject;
+        }
 
         console.log("New Registration: ", userID);
         console.log("On Device: ", req.body.deviceName);
@@ -173,6 +213,8 @@ exports.register = function (req, res) {
         res.status(200).send("Registration approved!"); // OK
 
     } else {
+
+        console.log(checkRes.errorMessage);
 
         loginRes.status(400).send();
 

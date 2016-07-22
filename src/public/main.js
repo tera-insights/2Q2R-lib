@@ -23,7 +23,7 @@ function getRegistrationData(email) {
     }, "json");
 }
 
-function displayKeys(keys) {
+function displayKeys(email, keys) {
     var keySelection = $("#keySelection");
     keySelection.empty();
     for (var keyHandle in keys) {
@@ -38,7 +38,7 @@ function displayKeys(keys) {
             for (var keyHandle in keys) {
                 if ($("#" + keyHandle).is(":checked")) {
                     console.log("You selected the " + keys[keyHandle] + "!");
-                    getAuthenticationData($("#user-email").val(), keyHandle);
+                    authenticateQR(email, keyHandle);
                     break;
                 }
             }
@@ -50,11 +50,11 @@ function getKeys(email) {
     $.get("/keys?userID=" + email, function(data) {
         console.log("User keys:");
         console.log(data);
-        displayKeys(data);
+        displayKeys(email, data);
     }, "json");
 }
 
-function getAuthenticationData (email, keyHandle) {
+function authenticateQR (email, keyHandle) {
     console.log("Getting challenge for " + email + " with key handle: " + keyHandle + ".");
     $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(res) {
         if (res.error) {
@@ -74,6 +74,37 @@ function getAuthenticationData (email, keyHandle) {
                     $("#qrcode").append("<img src=\"authenticated.png\" alt=\"Authentication\n" +
                         "Successful!\" id=\"successImage\" style=\"width: 180px; height: 180px;\">");
 
+                }
+            }, "json");
+        }
+    }, "json");
+}
+
+/**
+ * Authenticate via Firebase Cloud Messaging.
+ */
+function authenticateNotify(email, keyHandle) {
+    console.log("Getting challenge for " + email + " with key handle: " + keyHandle + ".");
+    $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(data) {
+        if (data.error) {
+            alert(data.error);
+        } else {
+            console.log(data);
+            $.post("/notify?userID=" + email + "&keyHandle=" + keyHandle, data, function (res) {
+                if (res.statusCode == 200) {
+                    console.log("SENT FCM MESSAGE!")
+                    $.get("/login?userID=" + email, function (loginStatus) {
+                        if (loginStatus.successful) {
+                            $("#qrcode").empty();
+                            $("#qrcode").append("<img src=\"authenticated.png\" alt=\"Authentication\n" +
+                                "Successful!\" id=\"successImage\" style=\"width: 180px; height: 180px;\">");
+                            console.log("Authentication successful!");
+                        } else {
+                            console.log("Authentication failed!");
+                        }
+                    }, "json");
+                } else {
+                    console.log("FCM failed to process the notification: " + res.statusCode);
                 }
             }, "json");
         }
