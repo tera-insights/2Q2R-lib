@@ -6,7 +6,7 @@ var unirest = require('unirest');
 var config  = require('../../../config.json');
 
 var info = {
-    appName: "2Q2R Demo",
+    appName: config.appName,
     baseURL: "http://" + findIPv4() + ":8081/",
     appID: config.appID
 };
@@ -177,13 +177,15 @@ exports.register = function (req, res) {
     console.log(req.body);
     var userID = findUserID(req.body.clientData.challenge);
     var registerData = {
-        clientData: JSON.stringify(req.body.clientData).toString(),
+        clientData: new Buffer(JSON.stringify(req.body.clientData)).toString('base64'),
         registrationData: req.body.registrationData
     };
     var loginRes = challenges[userID].onCompletion;
     var checkRes = u2f.checkRegistration(challenges[userID], registerData);
 
     if (checkRes.successful) {
+
+        console.log("The keyID returned by U2F: " + checkRes.keyHandle);
 
         loginRes.status(200).send({ successful: true });
         delete challenges[userID];
@@ -228,9 +230,13 @@ exports.register = function (req, res) {
 
 exports.auth = function (req, res) {
 
+    console.log("Received authentication response.");
+    console.log(challenges);
+
     var userID = findUserID(req.body.clientData.challenge);
+    console.log(userID);
     var u2fRes = {
-        clientData: JSON.stringify(req.body.clientData),
+        clientData: new Buffer(JSON.stringify(req.body.clientData)).toString('base64'),
         signatureData: req.body.signatureData
     };
     var pubKey = registrations[userID][challenges[userID].keyHandle].pubKey;
@@ -252,41 +258,4 @@ exports.auth = function (req, res) {
 
     }
 
-} /*
-
-{
-    appInfo: {
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        appID: infoURL
-        
-    },
-    keyInfo: {
-        keyID: {
-            appID: ,
-            counter: ,
-            userID: 
-        }
-        keyID: {
-            appID: ,
-            counter: ,
-            userID: 
-        }
-        keyID: {
-            appID: ,
-            counter: ,
-            userID: 
-        }
-    }
 }
-
-*/
