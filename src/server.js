@@ -19,6 +19,7 @@ app.use(parser.urlencoded({ extended: false }));
 app.get("/info", _2Q2R.info);
 app.get("/login", _2Q2R.login);
 app.get("/challenge", _2Q2R.challenge);
+app.get("/forget", _2Q2R.forget);
 app.get("/keys", _2Q2R.keys);
 app.post("/notify", _2Q2R.notify);
 app.post("/register", _2Q2R.register);

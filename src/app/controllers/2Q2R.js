@@ -94,6 +94,16 @@ exports.challenge = function (req, res) {
 
 }
 
+/**
+ * Deletes the pending challenge for the given user.
+ * Should be used when a login request times out.
+ */
+exports.forget = function (req, res) {
+    console.log("Releasing challenge for " + req.query.userID + "...");
+    delete challenges[req.query.userID];
+    console.log("Released.");
+}
+
 exports.notify = function (req, res) {
 
     var userID = req.query.userID;
@@ -233,10 +243,12 @@ exports.auth = function (req, res) {
     console.log("Received authentication response.");
     console.log(challenges);
 
-    var userID = findUserID(req.body.clientData.challenge);
+    var clientData = JSON.parse(req.body.clientData);
+
+    var userID = findUserID(clientData.challenge);
     console.log(userID);
     var u2fRes = {
-        clientData: new Buffer(JSON.stringify(req.body.clientData)).toString('base64'),
+        clientData: new Buffer(req.body.clientData).toString('base64'),
         signatureData: req.body.signatureData
     };
     var pubKey = registrations[userID][challenges[userID].keyHandle].pubKey;

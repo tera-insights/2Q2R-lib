@@ -16,14 +16,20 @@ function getRegistrationData(email) {
                 if (res.successful) {
                     $("#qrcode").empty();
                     $("#qrcode").append("<img src=\"check.png\" alt=\"Registration\n" +
-                        "Successful!\" id=\"successImage\" style=\"width: 180px; height: 180px;\">");
+                        "Successful!\" id=\"successImage\" style=\"width: 174px; height: 174px;\">");
                 }
-            }, "json");
+            }, "json")
+            .fail(function (jqXHR, textStatus) {
+                $("#qrcode").empty();
+                $("#qrcode").append("<img src=\"timeout.png\" alt=\"Registration\n" +
+                        "timed out.\" id=\"timeoutImage\" style=\"width: 174px; height: 174px;\">");
+                $.get("/forget?userID=" + email);
+            });
         }
     }, "json");
 }
 
-function displayKeys(email, keys) {
+function displayKeys(email, useFirebase, keys) {
     var keySelection = $("#keySelection");
     keySelection.empty();
     for (var keyHandle in keys) {
@@ -38,7 +44,11 @@ function displayKeys(email, keys) {
             for (var keyHandle in keys) {
                 if ($("#" + keyHandle).is(":checked")) {
                     console.log("You selected the " + keys[keyHandle] + "!");
-                    authenticateQR(email, keyHandle);
+                    if (useFirebase) {
+                        authenticateNotify(email, keyHandle);
+                    } else {
+                        authenticateQR(email, keyHandle);
+                    }
                     break;
                 }
             }
@@ -46,14 +56,17 @@ function displayKeys(email, keys) {
     }).modal('show');
 }
 
-function getKeys(email) {
+function getKeys(email, useFirebase) {
     $.get("/keys?userID=" + email, function(data) {
         console.log("User keys:");
         console.log(data);
-        displayKeys(email, data);
+        displayKeys(email, useFirebase, data);
     }, "json");
 }
 
+/**
+ * Authenticate by scanning a QR.
+ */
 function authenticateQR (email, keyHandle) {
     console.log("Getting challenge for " + email + " with key handle: " + keyHandle + ".");
     $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(res) {
@@ -72,10 +85,16 @@ function authenticateQR (email, keyHandle) {
                 if (res.successful) {
                     $("#qrcode").empty();
                     $("#qrcode").append("<img src=\"authenticated.png\" alt=\"Authentication\n" +
-                        "Successful!\" id=\"successImage\" style=\"width: 180px; height: 180px;\">");
+                        "Successful!\" id=\"successImage\" style=\"width: 174px; height: 174px;\">");
 
                 }
-            }, "json");
+            }, "json")
+            .fail(function (jqXHR, textStatus) {
+                $("#qrcode").empty();
+                $("#qrcode").append("<img src=\"timeout.png\" alt=\"Registration\n" +
+                        "timed out.\" id=\"timeoutImage\" style=\"width: 174px; height: 174px;\">");
+                $.get("/forget?userID=" + email);
+            });
         }
     }, "json");
 }
@@ -102,7 +121,13 @@ function authenticateNotify(email, keyHandle) {
                         } else {
                             console.log("Authentication failed!");
                         }
-                    }, "json");
+                    }, "json")
+                    .fail(function (jqXHR, textStatus) {
+                        $("#qrcode").empty();
+                        $("#qrcode").append("<img src=\"timeout.png\" alt=\"Registration\n" +
+                                "timed out.\" id=\"timeoutImage\" style=\"width: 174px; height: 174px;\">");
+                        $.get("/forget?userID=" + email);
+                    });
                 } else {
                     console.log("FCM failed to process the notification: " + res.statusCode);
                 }
@@ -116,7 +141,10 @@ $(document).ready(function() {
         getRegistrationData($("#user-email").val());
     });
     $("#button-authenticate").on("click", function() {
-        getKeys($("#user-email").val());
+        getKeys($("#user-email").val(), false);
+    });
+    $("#button-firebase").on("click", function() {
+        getKeys($("#user-email").val(), true);
     });
 
     $("#modal-close").click(function(){
