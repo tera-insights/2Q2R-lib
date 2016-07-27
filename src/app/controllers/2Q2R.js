@@ -185,9 +185,9 @@ exports.userID = function (req, res) {
 exports.register = function (req, res) {
 
     console.log(req.body);
-    var userID = findUserID(req.body.clientData.challenge);
+    var userID = findUserID(JSON.parse(req.body.clientData).challenge);
     var registerData = {
-        clientData: new Buffer(JSON.stringify(req.body.clientData)).toString('base64'),
+        clientData: new Buffer(req.body.clientData).toString('base64'),
         registrationData: req.body.registrationData
     };
     var loginRes = challenges[userID].onCompletion;
@@ -256,7 +256,7 @@ exports.auth = function (req, res) {
 
     if (checkSig.successful) {
 
-        challenges[userID].onCompletion.status(200).send({ successful: true });
+        //challenges[userID].onCompletion.status(200).send({ successful: true });
 
         // open user session
         res.status(200).send("Authentication approved!");
