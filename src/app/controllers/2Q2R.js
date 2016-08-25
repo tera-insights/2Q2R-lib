@@ -87,9 +87,15 @@ exports.challenge = function (req, res) {
         infoURL: "http://" + findIPv4() + ":8081/v1/info/" + info.appID,
         challenge: u2fReq.challenge,
         appID: info.appID,
-        keyID: keyID,
-        counter: registrations[userID][keyID].counter
+        keyID: keyID
     };
+
+    if (keyID && registrations[userID][keyID]) {
+        registrations[userID][keyID].counter++;
+        reply.counter = registrations[userID][keyID].counter;
+    } else {
+        reply.counter = 0;
+    }
 
     res.send(JSON.stringify(reply));
 
@@ -243,6 +249,16 @@ exports.auth = function (req, res) {
 
     console.log("Received authentication response.");
     console.log(challenges);
+    
+    var error = req.body.error;
+    var userID = findUserID(req.body.challenge);
+
+    if (error) {
+        console.log(challenges[userID]);
+        delete challenges[userID];
+        res.status(+error).send();
+        return;
+    }
 
     var clientData = JSON.parse(req.body.clientData);
 
@@ -254,7 +270,6 @@ exports.auth = function (req, res) {
     if (checkSig.successful) {
 
         //challenges[userID].onCompletion.status(200).send({ successful: true });
-        registrations[userID][challenges[userID].keyHandle].counter++;
 
         // open user session
         res.status(200).send("Authentication approved!");
