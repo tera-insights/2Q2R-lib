@@ -84,10 +84,11 @@ exports.challenge = function (req, res) {
     challenges[userID] = u2fReq;
 
     var reply = {
-        infoURL: "http://" + findIPv4() + ":8081/info",
+        infoURL: "http://" + findIPv4() + ":8081/v1/info/" + info.appID,
         challenge: u2fReq.challenge,
         appID: info.appID,
-        keyID: keyID
+        keyID: keyID,
+        counter: registrations[userID][keyID].counter
     };
 
     res.send(JSON.stringify(reply));
@@ -122,7 +123,7 @@ exports.notify = function (req, res) {
         .send({
             to: fcmToken,
             data: {
-                authData: "A " + data.appID + " " + data.challenge + " " + data.keyID
+                authData: "A " + data.appID + " " + data.challenge + " " + data.keyID + " " + data.counter
             }
         })
         .end(function (response) {
@@ -245,18 +246,15 @@ exports.auth = function (req, res) {
 
     var clientData = JSON.parse(req.body.clientData);
 
-    var userID = findUserID(clientData.challenge);
+    var userID = findUserID(JSON.parse(req.body.clientData).challenge);
     console.log(userID);
-    var u2fRes = {
-        clientData: new Buffer(req.body.clientData).toString('base64'),
-        signatureData: req.body.signatureData
-    };
     var pubKey = registrations[userID][challenges[userID].keyHandle].pubKey;
-    var checkSig = u2f.checkSignature(challenges[userID], u2fRes, pubKey);
+    var checkSig = u2f.checkSignature(challenges[userID], req.body, pubKey);
 
     if (checkSig.successful) {
 
         //challenges[userID].onCompletion.status(200).send({ successful: true });
+        registrations[userID][challenges[userID].keyHandle].counter++;
 
         // open user session
         res.status(200).send("Authentication approved!");

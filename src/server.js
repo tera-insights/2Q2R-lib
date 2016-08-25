@@ -16,14 +16,14 @@ app.use(morgan('dev'));
 app.use(parser.json());
 app.use(parser.urlencoded({ extended: false }));
 
-app.get("/info", _2Q2R.info);
-app.get("/login", _2Q2R.login);
-app.get("/challenge", _2Q2R.challenge);
-app.get("/forget", _2Q2R.forget);
-app.get("/keys", _2Q2R.keys);
-app.post("/notify", _2Q2R.notify);
-app.post("/register", _2Q2R.register);
-app.post("/auth", _2Q2R.auth);
+app.get("/v1/info/:appID", _2Q2R.info);
+app.get("/v1/login", _2Q2R.login);
+app.get("/v1/challenge", _2Q2R.challenge);
+app.get("/v1/forget", _2Q2R.forget);
+app.get("/v1/keys", _2Q2R.keys);
+app.post("/v1/notify", _2Q2R.notify);
+app.post("/v1/register", _2Q2R.register);
+app.post("/v1/auth", _2Q2R.auth);
 
 app.use(express.static("public/"));
 

@@ -1,6 +1,6 @@
 
 function getRegistrationData(email) {
-    $.get("/challenge?userID=" + email, function(data) {
+    $.get("/v1/challenge?userID=" + email, function(data) {
         console.log(data);
         if (data.error) {
             alert(data.error);
@@ -12,7 +12,7 @@ function getRegistrationData(email) {
                 radius: 0.3
             });
 
-            $.get("/login?userID=" + email, function (res) {
+            $.get("/v1/login?userID=" + email, function (res) {
                 if (res.successful) {
                     $("#qrcode").empty();
                     $("#qrcode").append("<img src=\"check.png\" alt=\"Registration\n" +
@@ -23,7 +23,7 @@ function getRegistrationData(email) {
                 $("#qrcode").empty();
                 $("#qrcode").append("<img src=\"timeout.png\" alt=\"Registration\n" +
                         "timed out.\" id=\"timeoutImage\" style=\"width: 174px; height: 174px;\">");
-                $.get("/forget?userID=" + email);
+                $.get("/v1/forget?userID=" + email);
             });
         }
     }, "json");
@@ -57,7 +57,7 @@ function displayKeys(email, useFirebase, keys) {
 }
 
 function getKeys(email, useFirebase) {
-    $.get("/keys?userID=" + email, function(data) {
+    $.get("/v1/keys?userID=" + email, function(data) {
         console.log("User keys:");
         console.log(data);
         displayKeys(email, useFirebase, data);
@@ -69,19 +69,19 @@ function getKeys(email, useFirebase) {
  */
 function authenticateQR (email, keyHandle) {
     console.log("Getting challenge for " + email + " with key handle: " + keyHandle + ".");
-    $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(res) {
+    $.get("/v1/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(res) {
         if (res.error) {
             alert(res.error);
         } else {
             console.log(res);
             $("#qrcode").empty();
             $("#qrcode").qrcode({
-                text: "A " + res.appID + " " + res.challenge + " " + res.keyID,
+                text: "A " + res.appID + " " + res.challenge + " " + res.keyID + " " + res.counter,
                 size: 174,
                 radius: 0.3
             });
 
-            $.get("/login?userID=" + email, function (res) {
+            $.get("/v1/login?userID=" + email, function (res) {
                 if (res.successful) {
                     $("#qrcode").empty();
                     $("#qrcode").append("<img src=\"authenticated.png\" alt=\"Authentication\n" +
@@ -93,7 +93,7 @@ function authenticateQR (email, keyHandle) {
                 $("#qrcode").empty();
                 $("#qrcode").append("<img src=\"timeout.png\" alt=\"Registration\n" +
                         "timed out.\" id=\"timeoutImage\" style=\"width: 174px; height: 174px;\">");
-                $.get("/forget?userID=" + email);
+                $.get("/v1/forget?userID=" + email);
             });
         }
     }, "json");
@@ -104,15 +104,15 @@ function authenticateQR (email, keyHandle) {
  */
 function authenticateNotify(email, keyHandle) {
     console.log("Getting challenge for " + email + " with key handle: " + keyHandle + ".");
-    $.get("/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(data) {
+    $.get("/v1/challenge?userID=" + email + "&keyHandle=" + keyHandle, function(data) {
         if (data.error) {
             alert(data.error);
         } else {
             console.log(data);
-            $.post("/notify?userID=" + email + "&keyHandle=" + keyHandle, data, function (res) {
+            $.post("/v1/notify?userID=" + email + "&keyHandle=" + keyHandle, data, function (res) {
                 if (res.statusCode == 200) {
                     console.log("SENT FCM MESSAGE!")
-                    $.get("/login?userID=" + email, function (loginStatus) {
+                    $.get("/v1/login?userID=" + email, function (loginStatus) {
                         if (loginStatus.successful) {
                             $("#qrcode").empty();
                             $("#qrcode").append("<img src=\"authenticated.png\" alt=\"Authentication\n" +
@@ -126,12 +126,12 @@ function authenticateNotify(email, keyHandle) {
                         $("#qrcode").empty();
                         $("#qrcode").append("<img src=\"timeout.png\" alt=\"Registration\n" +
                                 "timed out.\" id=\"timeoutImage\" style=\"width: 174px; height: 174px;\">");
-                        $.get("/forget?userID=" + email);
+                        $.get("/v1/forget?userID=" + email);
                     });
                 } else {
                     console.log("FCM failed to process the notification: " + res.statusCode);
                 }
-            }, "json");
+         }, "json");
         }
     }, "json");
 }
