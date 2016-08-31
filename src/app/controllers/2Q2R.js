@@ -246,24 +246,21 @@ exports.register = function (req, res) {
 
 
 exports.auth = function (req, res) {
-
-    console.log("Received authentication response.");
-    console.log(challenges);
     
-    var error = req.body.error;
+    var error = req.body.errorStatus;
     var userID = findUserID(req.body.challenge);
 
     if (error) {
+        console.log("Deleting challenge:");
         console.log(challenges[userID]);
         delete challenges[userID];
-        res.status(+error).send();
+        res.status(+error).send("Authentication canceled.");
         return;
     }
 
-    var clientData = JSON.parse(req.body.clientData);
-
     var userID = findUserID(JSON.parse(req.body.clientData).challenge);
     console.log(userID);
+    console.log(req.body);
     var pubKey = registrations[userID][challenges[userID].keyHandle].pubKey;
     var checkSig = u2f.checkSignature(challenges[userID], req.body, pubKey);
 
@@ -276,7 +273,9 @@ exports.auth = function (req, res) {
 
     } else {
 
-        challenges[userID].onCompletion.status(400).send();
+        console.log(checkSig.errorMessage);
+
+        //challenges[userID].onCompletion.status(400).send();
 
         console.log("Authentication for \"" + userID + "\" failed.");
         res.status(400).send("Authentication failed.");
